@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  name       String?
+  email      String    @unique
+  password   String
+  otp        String?
+  role       Role      @default(AGENCY)
+  contact    String?
+  isVerified Boolean?
+  about      String?   @db.MediumText
+  image      String?
+  bookings   Booking[]
+  createdAt  DateTime  @default(now())
+}
+
+model Booking {
+  id                 Int      @id @default(autoincrement())
+  flightDate         String
+  pName              String?
+  ticketNo           String?
+  pId                String?
+  identificationType String?
+  nationality        String
+  totalPrice         Float
+  discount           Float?
+  prePayment         Float?
+  flightType         String   @default("commerical flight")
+  status             Boolean  @default(false)
+  paymentMethod      Method
+  commission         Float?   @default(0)
+  includes           Boolean
+  packageId          Int?
+  package            Package? @relation(fields: [packageId], references: [id])
+  pilotId            Int?
+  pilot              Pilot?   @relation(fields: [pilotId], references: [id])
+  userId             Int?
+  user               User?    @relation(fields: [userId], references: [id])
+  createdAt          DateTime @default(now())
+}
+
+model Package {
+  id              Int        @id @default(autoincrement())
+  title           String
+  minPrice        Float
+  maxPrice        Float
+  includeMinPrice Float
+  includeMaxPrice Float
+  duration        String
+  createdAt       DateTime   @default(now())
+  aircraftType    CraftType?
+  booking         Booking[]
+}
+
+model Pilot {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  Booking Booking[]
+}
+
+enum Role {
+  ADMIN
+  AGENCY
+}
+
+enum CraftType {
+  OPEN
+  CLOSE
+}
+
+enum Method {
+  CASH
+  CARD
+  CREDIT
+  ONLINE
+}
+
+enum flightType {
+  COMMERICAL
+  FREE
+  TRAINING
+  TEST
+}
