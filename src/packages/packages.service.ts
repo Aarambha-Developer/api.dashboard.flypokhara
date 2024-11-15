@@ -17,12 +17,12 @@ export class PackagesService {
   async findAll() {
     const packs = await this.prisma.package.findMany({
       select: {
+        id: true,
         title: true,
         includeMaxPrice: true,
         maxPrice: true,
         minPrice: true,
         includeMinPrice: true,
-        aircraftType: true,
       },
     });
     if (!packs) {
@@ -44,7 +44,6 @@ export class PackagesService {
         maxPrice: true,
         minPrice: true,
         includeMinPrice: true,
-        aircraftType: true,
         id: true,
       },
     });
@@ -69,7 +68,6 @@ export class PackagesService {
       },
       data: {
         ...updatePackageDto,
-        aircraftType: updatePackageDto.aircraftType,
       },
     });
     return responseHelper.success('package updated Successfully', pack);
