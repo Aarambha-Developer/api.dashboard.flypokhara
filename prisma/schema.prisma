@@ -29,7 +29,7 @@ model User {
 }
 
 model Booking {
-  id                 Int      @id @default(autoincrement())
+  id                 Int        @id @default(autoincrement())
   flightDate         String
   pName              String?
   ticketNo           String?
@@ -37,32 +37,32 @@ model Booking {
   identificationType String?
   nationality        String
   totalPrice         Float
+  aircraftType       CraftType?
   discount           Float?
   prePayment         Float?
-  flightType         String   @default("commerical flight")
-  status             Boolean  @default(false)
-  paymentMethod      Method
-  commission         Float?   @default(0)
+  flightType         String     @default("COMMERCIAL")
+  status             Boolean    @default(false)
+  paymentMethod      Method?
+  commission         Float?     @default(0)
   includes           Boolean
   packageId          Int?
-  package            Package? @relation(fields: [packageId], references: [id])
+  package            Package?   @relation(fields: [packageId], references: [id])
   pilotId            Int?
-  pilot              Pilot?   @relation(fields: [pilotId], references: [id])
+  pilot              Pilot?     @relation(fields: [pilotId], references: [id])
   userId             Int?
-  user               User?    @relation(fields: [userId], references: [id])
-  createdAt          DateTime @default(now())
+  user               User?      @relation(fields: [userId], references: [id])
+  createdAt          DateTime   @default(now())
 }
 
 model Package {
-  id              Int        @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   title           String
   minPrice        Float
   maxPrice        Float
   includeMinPrice Float
   includeMaxPrice Float
   duration        String
-  createdAt       DateTime   @default(now())
-  aircraftType    CraftType?
+  createdAt       DateTime  @default(now())
   booking         Booking[]
 }
 
@@ -91,7 +91,7 @@ enum Method {
 }
 
 enum flightType {
-  COMMERICAL
+  COMMERCIAL
   FREE
   TRAINING
   TEST
