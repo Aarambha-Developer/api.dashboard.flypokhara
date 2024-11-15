@@ -10,7 +10,6 @@ import {
   LoginDto,
   ResetPasswordDto,
 } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import responseHelper from 'src/helper/response-helper';
 import { JwtService } from '@nestjs/jwt';
@@ -27,7 +26,7 @@ export class AuthService {
     private readonly mailService: MailerService,
   ) {}
 
-  async register(createAuthDto: CreateAuthDto) {
+  async register(createAuthDto: CreateAuthDto, authUser: any) {
     const userExists = await this.prisma.user.findUnique({
       where: {
         email: createAuthDto.email,
@@ -52,6 +51,7 @@ export class AuthService {
       data: {
         ...createAuthDto,
         password: await bcrypt.hash(createAuthDto.password, saltORRounds),
+        role: authUser?.role === 'ADMIN' ? createAuthDto.role : 'AGENCY',
       },
       select: {
         id: true,
@@ -84,6 +84,14 @@ export class AuthService {
         access_token: this.jwtService.sign(payload, {
           secret: process.env.JWT_SECRET,
         }),
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          contact: user.contact,
+          about: user.about,
+          role: user.role,
+        },
       });
     } else {
       throw new BadRequestException(
@@ -245,5 +253,25 @@ export class AuthService {
       },
     });
     return responseHelper.success('User deleted successfully', user);
+  }
+
+  async initAdmin() {
+    const user = await this.prisma.user.create({
+      data: {
+        name: 'Admin',
+        email: 'dev@aarambhait.com',
+        role: 'ADMIN',
+        password: await bcrypt.hash('dev@aarambhait', 10),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        contact: true,
+        about: true,
+        role: true,
+      },
+    });
+    return responseHelper.success('Admin created successfully', user);
   }
 }

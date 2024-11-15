@@ -28,8 +28,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  register(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.register(createAuthDto);
+  register(@Body() createAuthDto: CreateAuthDto, @CurrentUser() user: any) {
+    return this.authService.register(createAuthDto, user);
   }
 
   @Post('login')
@@ -71,5 +71,9 @@ export class AuthController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.authService.remove(+id);
+  }
+  @Post('init-admin')
+  initAdmin() {
+    return this.authService.initAdmin();
   }
 }
