@@ -43,7 +43,8 @@ model Booking {
   flightType         String     @default("COMMERCIAL")
   status             Boolean    @default(false)
   paymentMethod      Method?
-  commission         Float?     @default(0)
+  commissionMin      Float?     @default(0)
+  commissionMax      Float?     @default(0)
   includes           Boolean
   packageId          Int?
   package            Package?   @relation(fields: [packageId], references: [id])
