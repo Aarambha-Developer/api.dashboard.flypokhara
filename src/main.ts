@@ -14,10 +14,10 @@ async function bootstrap() {
       'http://192.168.1.189:3000',
       'http://192.168.1.189:3001',
       'http://127.0.0.1:3000',
-      'https://pokharaultralight.com.np',
-      'http://pokharaultralight.com.np',
-      'https://www.pokharaultralight.com.np',
-      'http://pokharaultralight.com.np',
+      'https://dashboard.pokharaultralight.com.np',
+      'http://dashboard.pokharaultralight.com.np',
+      'https://www.dashboard.pokharaultralight.com.np',
+      'http://dashboard.pokharaultralight.com.np',
     ],
 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed methods

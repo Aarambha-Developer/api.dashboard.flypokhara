@@ -96,6 +96,9 @@ export class BookingService {
         where: {
           userId: user.id,
         },
+        orderBy: {
+          createdAt: 'desc',
+        },
         select: {
           id: true,
           userId: true,
@@ -111,6 +114,18 @@ export class BookingService {
           includes: true,
           commissionMax: true,
           commissionMin: true,
+          user: {
+            select: {
+              name: true,
+            },
+          },
+          package: {
+            select: {
+              title: true,
+            },
+          },
+          pName: true,
+          pId: true,
         },
       });
       if (!bookings) {
@@ -119,6 +134,9 @@ export class BookingService {
       return responseHelper.success('Bookings found successfully', bookings);
     }
     const bookings = await this.prisma.booking.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
       select: {
         id: true,
         userId: true,
@@ -134,6 +152,18 @@ export class BookingService {
         includes: true,
         commissionMax: true,
         commissionMin: true,
+        user: {
+          select: {
+            name: true,
+          },
+        },
+        package: {
+          select: {
+            title: true,
+          },
+        },
+        pName: true,
+        pId: true,
       },
     });
     if (!bookings) {
@@ -152,7 +182,16 @@ export class BookingService {
         include: {
           pilot: true,
           package: true,
-          user: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              contact: true,
+              about: true,
+              role: true,
+            },
+          },
         },
       });
       if (!booking) {
