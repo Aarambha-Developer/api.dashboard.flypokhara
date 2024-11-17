@@ -12,9 +12,11 @@ import responseHelper from 'src/helper/response-helper';
 export class BookingService {
   constructor(private readonly prisma: PrismaService) {}
   async create(user: any, createBookingDto: CreateBookingDto) {
+    console.log(createBookingDto, 'createBookingDto');
     try {
       let totalPrice = 0;
-      let commission = 0;
+      let commissionMin = 0;
+      let commissionMax = 0;
       let flightType = createBookingDto.flightType
         ? createBookingDto.flightType
         : 'COMMERCIAL';
@@ -33,14 +35,14 @@ export class BookingService {
       }
       if (flightType == 'COMMERCIAL') {
         if (
-          createBookingDto.nationality.toLocaleLowerCase() !== 'indian' &&
-          createBookingDto.nationality.toLocaleLowerCase() !== 'nepali'
+          createBookingDto.nationality.toLocaleLowerCase() !== 'india' &&
+          createBookingDto.nationality.toLocaleLowerCase() !== 'nepal'
         ) {
           totalPrice = pack.maxPrice;
           if (pack.duration == '15' || pack.duration == '30') {
-            commission = (15 * totalPrice) / 100;
+            commissionMax = (15 * totalPrice) / 100;
           } else {
-            commission = (20 * totalPrice) / 100;
+            commissionMax = (20 * totalPrice) / 100;
           }
           if (createBookingDto.includes) {
             totalPrice += pack.includeMaxPrice;
@@ -48,9 +50,9 @@ export class BookingService {
         } else {
           totalPrice = pack.minPrice;
           if (pack.duration == '15' || pack.duration == '30') {
-            commission = (10 * totalPrice) / 100;
+            commissionMin = (10 * totalPrice) / 100;
           } else {
-            commission = (15 * totalPrice) / 100;
+            commissionMin = (15 * totalPrice) / 100;
           }
 
           if (createBookingDto.includes) {
@@ -76,7 +78,8 @@ export class BookingService {
           identificationType: createBookingDto.pIdType,
           ticketNo: createBookingDto.ticketNo,
           aircraftType: createBookingDto.aircraftType,
-          commission: user?.role == 'ADMIN' ? 0 : commission,
+          commissionMin: user?.role == 'ADMIN' ? 0 : commissionMin,
+          commissionMax: user?.role == 'ADMIN' ? 0 : commissionMax,
         },
       });
       return responseHelper.success('Booking created successfully', booking);
@@ -106,7 +109,8 @@ export class BookingService {
           flightType: true,
           paymentMethod: true,
           includes: true,
-          commission: true,
+          commissionMax: true,
+          commissionMin: true,
         },
       });
       if (!bookings) {
@@ -128,7 +132,8 @@ export class BookingService {
         flightType: true,
         paymentMethod: true,
         includes: true,
-        commission: true,
+        commissionMax: true,
+        commissionMin: true,
       },
     });
     if (!bookings) {
@@ -170,7 +175,9 @@ export class BookingService {
   async update(id: number, updateBookingDto: UpdateBookingDto, user: any) {
     try {
       let totalPrice = 0;
-      // let commission = 0;
+      let commissionMin = 0;
+      let commissionMax = 0;
+      let flightType = updateBookingDto.flightType;
       if (user.role !== 'ADMIN') {
         const booking = await this.prisma.booking.findUnique({
           where: {
@@ -191,19 +198,28 @@ export class BookingService {
             responseHelper.error('Package not found', pack),
           );
         }
-        if (updateBookingDto.flightType === 'COMMERCIAL') {
+        if (flightType == 'COMMERCIAL') {
           if (
-            updateBookingDto.nationality.toLocaleLowerCase() !== 'indian' &&
-            updateBookingDto.nationality.toLocaleLowerCase() !== 'nepali'
+            updateBookingDto.nationality.toLocaleLowerCase() !== 'india' &&
+            updateBookingDto.nationality.toLocaleLowerCase() !== 'nepal'
           ) {
             totalPrice = pack.maxPrice;
-            // commission = (updateBookingDto.commission * totalPrice) / 100;
+            if (pack.duration == '15' || pack.duration == '30') {
+              commissionMax = (15 * totalPrice) / 100;
+            } else {
+              commissionMax = (20 * totalPrice) / 100;
+            }
             if (updateBookingDto.includes) {
               totalPrice += pack.includeMaxPrice;
             }
           } else {
             totalPrice = pack.minPrice;
-            // commission = (updateBookingDto.commission * totalPrice) / 100;
+            if (pack.duration == '15' || pack.duration == '30') {
+              commissionMin = (10 * totalPrice) / 100;
+            } else {
+              commissionMin = (15 * totalPrice) / 100;
+            }
+
             if (updateBookingDto.includes) {
               totalPrice += pack.includeMinPrice;
             }
@@ -230,6 +246,8 @@ export class BookingService {
             identificationType: updateBookingDto.pIdType,
             ticketNo: updateBookingDto.ticketNo,
             aircraftType: updateBookingDto.aircraftType,
+            commissionMin: user?.role == 'ADMIN' ? 0 : commissionMin,
+            commissionMax: user?.role == 'ADMIN' ? 0 : commissionMax,
           },
         });
         return responseHelper.success(

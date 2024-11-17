@@ -30,18 +30,18 @@ export class CreateBookingDto {
   @ApiProperty({ example: '2023-01-01', required: true })
   @IsString({ message: 'Flight Date is required' })
   flightDate: string;
-  @ApiProperty({ example: 'Nepali', required: true })
+  @ApiProperty({ example: 'nepal', required: true })
   @IsString({ message: 'Nationality is required' })
   nationality: string;
-  @ApiProperty({ example: 200, required: false })
+  @ApiProperty({ example: 0, required: false })
   @IsNumber()
   @IsOptional()
   prePayment: number;
-  @ApiProperty({ example: 100, required: false })
+  @ApiProperty({ example: 0, required: false })
   @IsNumber()
   @IsOptional()
   discount: number;
-  @ApiProperty({ example: 'COMMERICAL', required: true })
+  @ApiProperty({ example: 'COMMERCIAL', required: true })
   @IsString({ message: 'Flight Type Must be COMMERICAL|FREE|TRAINING|TEST' })
   @IsOptional()
   flightType: string;
@@ -78,7 +78,7 @@ export class CreateBookingDto {
   @ApiProperty()
   @IsString({ message: 'Identification Type is required' })
   pIdType: string;
-  @ApiProperty()
+  @ApiProperty({ example: 'OPEN', required: true })
   @IsEnum(CraftType) // This will validate the enum value
   @IsOptional()
   aircraftType: CraftType;
