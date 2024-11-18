@@ -37,6 +37,14 @@ export class AuthGuard implements CanActivate {
         where: {
           id: decoded.id,
         },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          contact: true,
+          about: true,
+          role: true,
+        },
       });
       if (!user) {
         throw new UnauthorizedException(responseHelper.error('NOT found'));
