@@ -7,9 +7,10 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
-import { CreateBookingDto } from './dto/create-booking.dto';
+import { CreateBookingDto, PaginationQueryDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CurrentUser } from 'src/current-user/current-user.decorator';
@@ -27,8 +28,8 @@ export class BookingController {
 
   @Get()
   @ApiBearerAuth()
-  findAll(@CurrentUser() user: any, @Param() params: any) {
-    return this.bookingService.findAll(user, params);
+  findAll(@CurrentUser() user: any, @Param() params: any,@Query() query: PaginationQueryDto) {
+    return this.bookingService.findAll(user, query);
   }
 
   @Get(':id')

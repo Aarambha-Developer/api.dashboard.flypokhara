@@ -3,7 +3,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateBookingDto } from './dto/create-booking.dto';
+import { CreateBookingDto, PaginationQueryDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import responseHelper from 'src/helper/response-helper';
@@ -90,14 +90,34 @@ export class BookingService {
     }
   }
 
-  async findAll(user: { id: number; role: string }, params: any) {
+  async findAll(user: { id: number; role: string }, query: PaginationQueryDto) {
+    enum SortOrder {
+      asc = 'asc',
+      desc = 'desc',
+    }
+    const page = Math.max(1, query.page || 1);
+    const limit = Math.max(1, query.limit || 10);
+    const skip = (page - 1) * limit;
+    const orderBy = query.sortBy
+      ? {
+          [query.sortBy]:
+            query.sortOrder === 'asc' ? SortOrder.asc : SortOrder.desc,
+        }
+      : {
+          createdAt: SortOrder.desc,
+        };
     if (user.role !== 'ADMIN') {
-      const bookings = await this.prisma.booking.findMany({
+      const total = await this.prisma.booking.count({
         where: {
           userId: user.id,
         },
-        orderBy: {
-          createdAt: 'desc',
+      });
+      const bookings = await this.prisma.booking.findMany({
+        skip,
+        take: limit,
+        orderBy,
+        where: {
+          userId: user.id,
         },
         select: {
           id: true,
@@ -114,6 +134,11 @@ export class BookingService {
           includes: true,
           commissionMax: true,
           commissionMin: true,
+          pilot: {
+            select: {
+              name: true,
+            },
+          },
           user: {
             select: {
               name: true,
@@ -128,15 +153,26 @@ export class BookingService {
           pId: true,
         },
       });
+      const lastPage = Math.ceil(total / limit);
       if (!bookings) {
         throw new NotFoundException(responseHelper.error('Not found'));
       }
-      return responseHelper.success('Bookings found successfully', bookings);
+      return responseHelper.success('Bookings found successfully', {
+        bookings,
+        meta: {
+          total,
+          page,
+          lastPage,
+          hasNextPage: page < lastPage,
+          hasPrevPage: page > 1,
+        },
+      });
     }
+    const total = await this.prisma.booking.count();
     const bookings = await this.prisma.booking.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
+      skip,
+      take: limit,
+      orderBy,
       select: {
         id: true,
         userId: true,
@@ -152,6 +188,11 @@ export class BookingService {
         includes: true,
         commissionMax: true,
         commissionMin: true,
+        pilot: {
+          select: {
+            name: true,
+          },
+        },
         user: {
           select: {
             name: true,
@@ -166,10 +207,21 @@ export class BookingService {
         pId: true,
       },
     });
+    const lastPage = Math.ceil(total / limit);
+
     if (!bookings) {
       throw new NotFoundException(responseHelper.error('Not found'));
     }
-    return responseHelper.success('Bookings found successfully', bookings);
+    return responseHelper.success('Bookings found successfully', {
+      bookings,
+      meta: {
+        total,
+        page,
+        lastPage,
+        hasNextPage: page < lastPage,
+        hasPrevPage: page > 1,
+      },
+    });
   }
 
   async findOne(id: number, user: any) {
