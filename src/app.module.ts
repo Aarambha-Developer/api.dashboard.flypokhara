@@ -8,9 +8,10 @@ import { MailerService } from './mail/mail.service';
 import { BookingModule } from './booking/booking.module';
 import { PackagesModule } from './packages/packages.module';
 import { PilotModule } from './pilot/pilot.module';
+import { HomeModule } from './home/home.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, BookingModule, PackagesModule, PilotModule],
+  imports: [AuthModule, PrismaModule, BookingModule, PackagesModule, PilotModule, HomeModule],
   controllers: [AppController],
   providers: [AppService, PrismaService, MailerService],
 })
