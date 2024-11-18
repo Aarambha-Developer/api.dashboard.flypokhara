@@ -147,10 +147,12 @@ export class BookingService {
           package: {
             select: {
               title: true,
+              duration: true,
             },
           },
           pName: true,
           pId: true,
+          
         },
       });
       const lastPage = Math.ceil(total / limit);
@@ -201,6 +203,7 @@ export class BookingService {
         package: {
           select: {
             title: true,
+            duration: true,
           },
         },
         pName: true,
@@ -255,6 +258,21 @@ export class BookingService {
     const booking = await this.prisma.booking.findUnique({
       where: {
         id: id,
+      },
+      include: {
+        pilot: true,
+        package: true,
+        
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            contact: true,
+            about: true,
+            role: true,
+          },
+        },
       },
     });
     if (!booking) {

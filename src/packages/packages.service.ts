@@ -23,6 +23,7 @@ export class PackagesService {
         maxPrice: true,
         minPrice: true,
         includeMinPrice: true,
+        duration: true,
       },
     });
     if (!packs) {
