@@ -76,4 +76,11 @@ export class AuthController {
   initAdmin() {
     return this.authService.initAdmin();
   }
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiBearerAuth()
+  @Delete()
+  removeAll() {
+    return this.authService.removeAll();
+  }
 }

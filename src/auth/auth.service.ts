@@ -274,4 +274,8 @@ export class AuthService {
     });
     return responseHelper.success('Admin created successfully', user);
   }
+  async removeAll() {
+    const deletedUsers = await this.prisma.user.deleteMany();
+    return responseHelper.success('All users deleted successfully', deletedUsers);
+  }
 }

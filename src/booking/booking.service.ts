@@ -466,4 +466,11 @@ export class BookingService {
       deletedBooking,
     );
   }
+  async  removeAll() {
+    const deletedBooking = await this.prisma.booking.deleteMany();
+    return responseHelper.success(
+      'All Booking deleted successfully',
+      deletedBooking,
+    );
+  }
 }

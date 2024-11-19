@@ -15,6 +15,8 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CurrentUser } from 'src/current-user/current-user.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { Roles } from 'src/roles/roles.decorator';
+import { RolesGuard } from 'src/roles/roles.guard';
 @UseGuards(AuthGuard)
 @Controller('booking')
 export class BookingController {
@@ -28,7 +30,11 @@ export class BookingController {
 
   @Get()
   @ApiBearerAuth()
-  findAll(@CurrentUser() user: any, @Param() params: any,@Query() query: PaginationQueryDto) {
+  findAll(
+    @CurrentUser() user: any,
+    @Param() params: any,
+    @Query() query: PaginationQueryDto,
+  ) {
     return this.bookingService.findAll(user, query);
   }
 
@@ -52,5 +58,13 @@ export class BookingController {
   @ApiBearerAuth()
   remove(@Param('id') id: string, @CurrentUser() user: any) {
     return this.bookingService.remove(+id, user);
+  }
+
+  @Delete()
+  @UseGuards(AuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles('ADMIN')
+  removeAll() {
+    return this.bookingService.removeAll();
   }
 }
