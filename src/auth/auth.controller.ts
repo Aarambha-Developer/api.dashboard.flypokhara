@@ -27,8 +27,19 @@ import { CurrentUser } from 'src/current-user/current-user.decorator';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiBearerAuth()
   @Post('register')
   register(@Body() createAuthDto: CreateAuthDto, @CurrentUser() user: any) {
+    return this.authService.register(createAuthDto, user);
+  }
+  @Post('admin-register')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  adminRegister(
+    @Body() createAuthDto: CreateAuthDto,
+    @CurrentUser() user: any,
+  ) {
     return this.authService.register(createAuthDto, user);
   }
 
