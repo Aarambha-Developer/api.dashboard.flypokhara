@@ -3,7 +3,12 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateBookingDto, PaginationQueryDto } from './dto/create-booking.dto';
+import {
+  CreateBookingDto,
+  PaginationQueryDto,
+  UpdateInAirportDto,
+  updateStatusDto,
+} from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import responseHelper from 'src/helper/response-helper';
@@ -12,7 +17,6 @@ import responseHelper from 'src/helper/response-helper';
 export class BookingService {
   constructor(private readonly prisma: PrismaService) {}
   async create(user: any, createBookingDto: CreateBookingDto) {
-    console.log(createBookingDto, 'createBookingDto');
     try {
       let totalPrice = 0;
       let commissionMin = 0;
@@ -39,21 +43,21 @@ export class BookingService {
           createBookingDto.nationality.toLocaleLowerCase() !== 'nepal'
         ) {
           totalPrice = pack.maxPrice;
-          if (pack.duration == '15' || pack.duration == '30') {
-            commissionMax = (15 * totalPrice) / 100;
-          } else {
-            commissionMax = (20 * totalPrice) / 100;
-          }
+          // if (pack.duration == '15' || pack.duration == '30') {
+          //   commissionMax = (15 * totalPrice) / 100;
+          // } else {
+          //   commissionMax = (20 * totalPrice) / 100;
+          // }
           if (createBookingDto.includes) {
             totalPrice += pack.includeMaxPrice;
           }
         } else {
           totalPrice = pack.minPrice;
-          if (pack.duration == '15' || pack.duration == '30') {
-            commissionMin = (10 * totalPrice) / 100;
-          } else {
-            commissionMin = (15 * totalPrice) / 100;
-          }
+          // if (pack.duration == '15' || pack.duration == '30') {
+          //   commissionMin = (10 * totalPrice) / 100;
+          // } else {
+          //   commissionMin = (15 * totalPrice) / 100;
+          // }
 
           if (createBookingDto.includes) {
             totalPrice += pack.includeMinPrice;
@@ -118,6 +122,9 @@ export class BookingService {
         orderBy,
         where: {
           userId: user.id,
+          pName: {
+            contains: query.search,
+          },
         },
         select: {
           id: true,
@@ -134,9 +141,11 @@ export class BookingService {
           includes: true,
           commissionMax: true,
           commissionMin: true,
+          status: true,
           pilot: {
             select: {
               name: true,
+              id: true,
             },
           },
           user: {
@@ -152,7 +161,6 @@ export class BookingService {
           },
           pName: true,
           pId: true,
-          
         },
       });
       const lastPage = Math.ceil(total / limit);
@@ -175,6 +183,11 @@ export class BookingService {
       skip,
       take: limit,
       orderBy,
+      where: {
+        pName: {
+          contains: query.search,
+        },
+      },
       select: {
         id: true,
         userId: true,
@@ -190,9 +203,11 @@ export class BookingService {
         includes: true,
         commissionMax: true,
         commissionMin: true,
+        status: true,
         pilot: {
           select: {
             name: true,
+            id: true,
           },
         },
         user: {
@@ -225,6 +240,94 @@ export class BookingService {
         hasPrevPage: page > 1,
       },
     });
+  }
+
+  async updateStatus(id: number, status: updateStatusDto, user: any) {
+    let commissionMax: number = 0;
+    let commissionMin: number = 0;
+    let totalPrice: number = 0;
+
+    const booking = await this.prisma.booking.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    const bookingAgency = await this.prisma.user.findUnique({
+      where: {
+        id: booking.userId,
+      },
+    });
+    if (!booking) {
+      throw new NotFoundException(responseHelper.error('Not found'));
+    }
+    const pack = await this.prisma.package.findUnique({
+      where: {
+        id: booking.packageId,
+      },
+    });
+    if (!pack) {
+      throw new NotFoundException(
+        responseHelper.error('Package not found', pack),
+      );
+    }
+    if (
+      booking.nationality.toLocaleLowerCase() !== 'india' &&
+      booking.nationality.toLocaleLowerCase() !== 'nepal'
+    ) {
+      if (pack.duration == '15' || pack.duration == '30') {
+        if (status.status == 'SUCCESS')
+          commissionMax = (15 * booking.totalPrice) / 100;
+      } else {
+        if (status.status == 'SUCCESS')
+          commissionMax = (20 * booking.totalPrice) / 100;
+      }
+    } else {
+      if (pack.duration == '15' || pack.duration == '30') {
+        if (status.status == 'SUCCESS')
+          commissionMin = (10 * booking.totalPrice) / 100;
+      } else {
+        if (status.status == 'SUCCESS')
+          commissionMin = (15 * booking.totalPrice) / 100;
+      }
+    }
+    const bookingUpdate = await this.prisma.booking.update({
+      where: {
+        id: id,
+      },
+
+      data: {
+        status: status.status,
+        commissionMax: bookingAgency?.role == 'ADMIN' ? 0 : commissionMax,
+        commissionMin: bookingAgency?.role == 'ADMIN' ? 0 : commissionMin,
+      },
+    });
+    
+    return responseHelper.success('Status updated successfully', bookingUpdate);
+  }
+
+  async updateInAirport(
+    id: number,
+    updateInAirportDto: UpdateInAirportDto,
+    user: any,
+  ) {
+    const booking = await this.prisma.booking.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!booking) {
+      throw new NotFoundException(responseHelper.error('Not found'));
+    }
+    await this.prisma.booking.update({
+      where: {
+        id: id,
+      },
+      data: {
+        pilotId: updateInAirportDto.pilotId,
+        aircraftId: updateInAirportDto.aircraftId,
+      },
+    });
+    return responseHelper.success('Status updated successfully', booking);
   }
 
   async findOne(id: number, user: any) {
@@ -262,7 +365,7 @@ export class BookingService {
       include: {
         pilot: true,
         package: true,
-        
+
         user: {
           select: {
             id: true,
@@ -313,21 +416,25 @@ export class BookingService {
             updateBookingDto.nationality.toLocaleLowerCase() !== 'nepal'
           ) {
             totalPrice = pack.maxPrice;
-            if (pack.duration == '15' || pack.duration == '30') {
-              commissionMax = (15 * totalPrice) / 100;
-            } else {
-              commissionMax = (20 * totalPrice) / 100;
-            }
+            // if (pack.duration == '15' || pack.duration == '30') {
+            //   if (updateBookingDto.status == 'SUCCESS')
+            //     commissionMax = (15 * totalPrice) / 100;
+            // } else {
+            //   if (updateBookingDto.status == 'SUCCESS')
+            //     commissionMax = (20 * totalPrice) / 100;
+            // }
             if (updateBookingDto.includes) {
               totalPrice += pack.includeMaxPrice;
             }
           } else {
             totalPrice = pack.minPrice;
-            if (pack.duration == '15' || pack.duration == '30') {
-              commissionMin = (10 * totalPrice) / 100;
-            } else {
-              commissionMin = (15 * totalPrice) / 100;
-            }
+            // if (pack.duration == '15' || pack.duration == '30') {
+            //   if (updateBookingDto.status == 'SUCCESS')
+            //     commissionMin = (10 * totalPrice) / 100;
+            // } else {
+            //   if (updateBookingDto.status == 'SUCCESS')
+            //     commissionMin = (15 * totalPrice) / 100;
+            // }
 
             if (updateBookingDto.includes) {
               totalPrice += pack.includeMinPrice;
@@ -466,7 +573,7 @@ export class BookingService {
       deletedBooking,
     );
   }
-  async  removeAll() {
+  async removeAll() {
     const deletedBooking = await this.prisma.booking.deleteMany();
     return responseHelper.success(
       'All Booking deleted successfully',
