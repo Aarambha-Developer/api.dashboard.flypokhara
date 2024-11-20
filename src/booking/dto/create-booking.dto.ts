@@ -51,7 +51,7 @@ export class CreateBookingDto {
   @ApiProperty({ example: 'CASH', required: true })
   @IsEnum(Method)
   @IsOptional()
-  paymentMethod: Method;
+  paymentMethod: Method|undefined;
 
   @ApiProperty({ example: 1, required: true })
   @IsNumber()
@@ -85,6 +85,11 @@ export class CreateBookingDto {
   @IsEnum(CraftType) // This will validate the enum value
   @IsOptional()
   aircraftType: CraftType;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  aircraftId: number;
 }
 
 export class PaginationQueryDto {
@@ -128,4 +133,31 @@ export class PaginationQueryDto {
   @IsOptional()
   @IsEnum(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc' = 'asc';
+
+  @ApiPropertyOptional({
+    description: 'Search query',
+    example: 'John Doe',
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
+}
+
+enum updateEnum {
+  SUCCESS = 'SUCCESS',
+  CANCELLED = 'CANCELLED',
+  PENDING = 'PENDING',
+  REFUNDED = 'REFUNDED',
+}
+export class updateStatusDto {
+  @IsEnum(updateEnum)
+  @ApiProperty({ example: 'SUCCESS', required: true })
+  status: updateEnum;
+}
+export class UpdateInAirportDto {
+  @ApiProperty({ example: 1, required: true })
+  pilotId: number;
+
+  @ApiProperty({ example: 1, required: true })
+  aircraftId: number;
 }

@@ -15,7 +15,6 @@ export class MailerService {
 
   async sendForgotPasswordEmail(to: string, resetToken: string) {
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-    console.log(resetLink);
     await this.transporter.sendMail({
       from: '"Your App" <no-reply@yourapp.com>',
       to,
@@ -24,8 +23,6 @@ export class MailerService {
           <h2 style="color: #333;">Password Reset Request</h2>
           <a href="${`${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`}">Reset Password</a> <br/>
           <p>You requested a password reset. Click the button below to reset your password:</p>
-              <p>Your Otp is: ${resetLink}</p>
-
           <p style="margin-top: 20px;">If you did not request this, please ignore this email.</p>
           <p style="color: #555;">This link is valid for 15 minutes.</p>
         </div>`,
