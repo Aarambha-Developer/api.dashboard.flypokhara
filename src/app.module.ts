@@ -9,9 +9,10 @@ import { BookingModule } from './booking/booking.module';
 import { PackagesModule } from './packages/packages.module';
 import { PilotModule } from './pilot/pilot.module';
 import { HomeModule } from './home/home.module';
+import { AircraftModule } from './aircraft/aircraft.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, BookingModule, PackagesModule, PilotModule, HomeModule],
+  imports: [AuthModule, PrismaModule, BookingModule, PackagesModule, PilotModule, HomeModule, AircraftModule],
   controllers: [AppController],
   providers: [AppService, PrismaService, MailerService],
 })
