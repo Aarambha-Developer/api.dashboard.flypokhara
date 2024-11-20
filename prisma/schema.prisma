@@ -41,7 +41,7 @@ model Booking {
   discount           Float?
   prePayment         Float?
   flightType         String     @default("COMMERCIAL")
-  status             Boolean    @default(false)
+  status             Status     @default(PENDING)
   paymentMethod      Method?
   commissionMin      Float?     @default(0)
   commissionMax      Float?     @default(0)
@@ -52,7 +52,23 @@ model Booking {
   pilot              Pilot?     @relation(fields: [pilotId], references: [id])
   userId             Int?
   user               User?      @relation(fields: [userId], references: [id])
+  aircraftId         Int?
+  aircraft           Aircraft?  @relation(fields: [aircraftId], references: [id])
   createdAt          DateTime   @default(now())
+}
+
+model Aircraft {
+  id                  Int        @id @default(autoincrement())
+  aircraftNo          String
+  aircraftName        String?
+  craftType           CraftType?
+  capacity            String?
+  registrationNo      String?
+  registrationDate    String?
+  registrationCountry String?
+
+  createdAt DateTime  @default(now())
+  Booking   Booking[]
 }
 
 model Package {
@@ -77,6 +93,7 @@ model Pilot {
 enum Role {
   ADMIN
   AGENCY
+  AIRPORT
 }
 
 enum CraftType {
@@ -96,4 +113,11 @@ enum flightType {
   FREE
   TRAINING
   TEST
+}
+
+enum Status {
+  SUCCESS
+  CANCELLED
+  PENDING
+  REFUNDED
 }
