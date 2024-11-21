@@ -68,3 +68,15 @@ export class ResetPasswordDto {
   @IsNotEmpty({ message: 'New Password required' })
   confirmPassword: string;
 }
+
+export class UpdateUserDto {
+  @ApiProperty({ example: 'name', required: true })
+  @IsNotEmpty({ message: 'Name is required' })
+  name: string;
+  
+  @ApiProperty({ example: '98xxxxxxxx' })
+  contact: string;
+
+  @ApiProperty({ example: 'about' })
+  about: string;
+}

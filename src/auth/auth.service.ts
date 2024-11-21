@@ -9,6 +9,7 @@ import {
   CreateAuthDto,
   LoginDto,
   ResetPasswordDto,
+  UpdateUserDto,
 } from './dto/create-auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import responseHelper from 'src/helper/response-helper';
@@ -17,6 +18,7 @@ import * as bcrypt from 'bcryptjs';
 import { AuthGuard } from './auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { MailerService } from 'src/mail/mail.service';
+import { UpdateAuthDto } from './dto/update-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -105,9 +107,7 @@ export class AuthService {
   @ApiBearerAuth()
   async findAll() {
     const users = await this.prisma.user.findMany({
-      where: {
-        role: 'AGENCY',
-      },
+     
       select: {
         id: true,
         name: true,
@@ -170,6 +170,36 @@ export class AuthService {
     });
     return responseHelper.success('Password changed successfully', updatedUser);
   }
+  async updateProfile(authUser:{id: number}, updateAuthDto: UpdateUserDto) { 
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: authUser.id,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException(responseHelper.error('User not found'));
+    }
+    const updatedUser = await this.prisma.user.update({
+      where: {
+        id: authUser.id,
+      },
+      data: {
+        name: updateAuthDto.name,
+        contact: updateAuthDto.contact,
+        about: updateAuthDto.about,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        contact: true,
+        about: true,
+        role: true,
+      },
+    });
+    return responseHelper.success('Profile updated successfully', updatedUser);
+  }
+  
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({
       where: {

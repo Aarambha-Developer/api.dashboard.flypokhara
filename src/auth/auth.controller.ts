@@ -15,12 +15,14 @@ import {
   ForgetPasswordDto,
   LoginDto,
   ResetPasswordDto,
+  UpdateUserDto,
 } from './dto/create-auth.dto';
 import { Roles } from 'src/roles/roles.decorator';
 import { AuthGuard } from './auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { RolesGuard } from 'src/roles/roles.guard';
 import { CurrentUser } from 'src/current-user/current-user.decorator';
+import { UpdateAuthDto } from './dto/update-auth.dto';
 
 // @ApiTags('Auth')
 @Controller('auth')
@@ -86,6 +88,15 @@ export class AuthController {
   @Post('init-admin')
   initAdmin() {
     return this.authService.initAdmin();
+  }
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Patch('update-profile')
+  updateProfile(
+    @CurrentUser() user: { id: number },
+    @Body() updateAuthDto: UpdateUserDto,
+  ) {
+    return this.authService.updateProfile(user, updateAuthDto);
   }
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN')
