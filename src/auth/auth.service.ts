@@ -107,7 +107,6 @@ export class AuthService {
   @ApiBearerAuth()
   async findAll() {
     const users = await this.prisma.user.findMany({
-     
       select: {
         id: true,
         name: true,
@@ -170,7 +169,7 @@ export class AuthService {
     });
     return responseHelper.success('Password changed successfully', updatedUser);
   }
-  async updateProfile(authUser:{id: number}, updateAuthDto: UpdateUserDto) { 
+  async updateProfile(authUser: { id: number }, updateAuthDto: UpdateUserDto) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: authUser.id,
@@ -199,7 +198,7 @@ export class AuthService {
     });
     return responseHelper.success('Profile updated successfully', updatedUser);
   }
-  
+
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -237,6 +236,23 @@ export class AuthService {
     // Send email
     await this.mailService.sendForgotPasswordEmail(user.email, resetToken);
     return responseHelper.success('Password reset email sent successfully');
+  }
+  async getProfile(authUser: any) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: authUser.id,
+      },
+      select: {
+        id: true,
+        contact: true,
+        name: true,
+        about: true,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException(responseHelper.error('Not found'));
+    }
+    return responseHelper.success('User found successfully', user);
   }
 
   async resetPassword(user: any, resetPasswordDto: ResetPasswordDto) {
@@ -306,6 +322,9 @@ export class AuthService {
   }
   async removeAll() {
     const deletedUsers = await this.prisma.user.deleteMany();
-    return responseHelper.success('All users deleted successfully', deletedUsers);
+    return responseHelper.success(
+      'All users deleted successfully',
+      deletedUsers,
+    );
   }
 }

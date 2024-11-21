@@ -98,6 +98,13 @@ export class AuthController {
   ) {
     return this.authService.updateProfile(user, updateAuthDto);
   }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get('profile')
+  getProfile(@CurrentUser() user: any) {
+    return this.authService.getProfile(user);
+  }
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN')
   @ApiBearerAuth()

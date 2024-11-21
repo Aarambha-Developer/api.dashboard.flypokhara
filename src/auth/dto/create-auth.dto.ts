@@ -1,15 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsStrongPassword } from 'class-validator';
 
+enum Role {
+  ADMIN = 'ADMIN',
+  AGENCY = 'AGENCY',
+}
 export class CreateAuthDto {
   @ApiProperty({ example: 'name', required: true })
   @IsNotEmpty({ message: 'Name is required' })
   name: string;
   @ApiProperty({ example: 'RbK9D@example.com', required: true })
-  @IsNotEmpty({ message: 'Name is required' })
+  @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail()
   email: string;
   @ApiProperty({ example: 'password', required: true })
-  @IsNotEmpty({ message: 'Name is required' })
+  @IsNotEmpty({ message: 'Password is required' })
   password: string;
   @ApiProperty({ example: '98xxxxxxxx' })
   contact: string;
@@ -17,20 +22,20 @@ export class CreateAuthDto {
   @ApiProperty({ example: 'about' })
   about: string;
   @ApiProperty({ example: 'AGENCY' })
+  @IsEnum(Role)
+    @IsOptional()
   role: Role;
 }
 
-enum Role {
-  ADMIN = 'ADMIN',
-  AGENCY = 'AGENCY',
-}
+
 
 export class LoginDto {
   @ApiProperty({ example: 'test@admin.com', required: true })
-  @IsNotEmpty({ message: 'Name is required' })
+  @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail()
   email: string;
   @ApiProperty({ example: '87654321', required: true })
-  @IsNotEmpty({ message: 'Name is required' })
+  @IsNotEmpty({ message: 'Password is required' })
   password: string;
 }
 
@@ -73,7 +78,7 @@ export class UpdateUserDto {
   @ApiProperty({ example: 'name', required: true })
   @IsNotEmpty({ message: 'Name is required' })
   name: string;
-  
+
   @ApiProperty({ example: '98xxxxxxxx' })
   contact: string;
 
