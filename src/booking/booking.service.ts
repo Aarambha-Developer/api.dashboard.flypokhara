@@ -347,7 +347,7 @@ export class BookingService {
   }
 
   async findOne(id: number, user: any) {
-    if (user.role !== 'ADMIN') {
+    if (user.role == 'AGENCY') {
       const booking = await this.prisma.booking.findUnique({
         where: {
           id: id,
@@ -465,7 +465,7 @@ export class BookingService {
           data: {
             flightDate: updateBookingDto.flightDate,
             packageId: updateBookingDto.packageId,
-            
+
             nationality: updateBookingDto.nationality,
             totalPrice,
             discount: user?.role !== 'ADMIN' ? 0 : updateBookingDto.discount,
