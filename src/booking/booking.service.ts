@@ -465,6 +465,7 @@ export class BookingService {
           data: {
             flightDate: updateBookingDto.flightDate,
             packageId: updateBookingDto.packageId,
+            
             nationality: updateBookingDto.nationality,
             totalPrice,
             discount: user?.role !== 'ADMIN' ? 0 : updateBookingDto.discount,
@@ -526,6 +527,7 @@ export class BookingService {
             packageId: updateBookingDto.packageId,
             nationality: updateBookingDto.nationality,
             totalPrice,
+            pilotId: updateBookingDto.pilotId,
             discount: updateBookingDto.discount,
             prePayment: updateBookingDto.prePayment,
             flightType: updateBookingDto.flightType,
