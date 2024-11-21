@@ -110,7 +110,7 @@ export class BookingService {
       : {
           createdAt: SortOrder.desc,
         };
-    if (user.role !== 'ADMIN') {
+    if (user.role == 'AGENCY') {
       const total = await this.prisma.booking.count({
         where: {
           userId: user.id,
@@ -347,7 +347,7 @@ export class BookingService {
   }
 
   async findOne(id: number, user: any) {
-    if (user.role == 'AGENCY') {
+    if (user.role !="ADMIN") {
       const booking = await this.prisma.booking.findUnique({
         where: {
           id: id,
