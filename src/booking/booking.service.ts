@@ -276,18 +276,34 @@ export class BookingService {
     ) {
       if (pack.duration == '15' || pack.duration == '30') {
         if (status.status == 'SUCCESS')
-          commissionMax = (15 * booking.totalPrice) / 100;
+          commissionMax =
+            (15 *
+              (booking.totalPrice -
+                (booking.includes ? pack.includeMaxPrice : 0))) /
+            100;
       } else {
         if (status.status == 'SUCCESS')
-          commissionMax = (20 * booking.totalPrice) / 100;
+          commissionMax =
+            (20 *
+              (booking.totalPrice -
+                (booking?.includes ? pack.includeMaxPrice : 0))) /
+            100;
       }
     } else {
       if (pack.duration == '15' || pack.duration == '30') {
         if (status.status == 'SUCCESS')
-          commissionMin = (10 * booking.totalPrice) / 100;
+          commissionMin =
+            (10 *
+              (booking.totalPrice -
+                (booking?.includes ? pack.includeMinPrice : 0))) /
+            100;
       } else {
         if (status.status == 'SUCCESS')
-          commissionMin = (15 * booking.totalPrice) / 100;
+          commissionMin =
+            (15 *
+              (booking.totalPrice -
+                (booking?.includes ? pack.includeMinPrice : 0))) /
+            100;
       }
     }
     const bookingUpdate = await this.prisma.booking.update({
@@ -301,7 +317,7 @@ export class BookingService {
         commissionMin: bookingAgency?.role == 'ADMIN' ? 0 : commissionMin,
       },
     });
-    
+
     return responseHelper.success('Status updated successfully', bookingUpdate);
   }
 
