@@ -90,6 +90,11 @@ export class CreateBookingDto {
   @IsNumber()
   @IsOptional()
   aircraftId: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  description: string;
 }
 
 export class PaginationQueryDto {

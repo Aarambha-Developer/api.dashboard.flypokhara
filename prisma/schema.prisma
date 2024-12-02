@@ -46,6 +46,7 @@ model Booking {
   commissionMin      Float?     @default(0)
   commissionMax      Float?     @default(0)
   includes           Boolean
+  description        String?
   packageId          Int?
   package            Package?   @relation(fields: [packageId], references: [id])
   pilotId            Int?

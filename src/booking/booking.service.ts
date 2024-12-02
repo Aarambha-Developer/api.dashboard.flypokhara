@@ -74,6 +74,7 @@ export class BookingService {
           totalPrice: totalPrice,
           discount: user.role !== 'ADMIN' ? 0 : createBookingDto.discount,
           prePayment: user.role !== 'ADMIN' ? 0 : createBookingDto.prePayment,
+          description: createBookingDto.description,
           flightType: createBookingDto.flightType,
           paymentMethod: createBookingDto.paymentMethod,
           includes: createBookingDto.includes,
@@ -141,6 +142,7 @@ export class BookingService {
           includes: true,
           commissionMax: true,
           commissionMin: true,
+          description: true,
           status: true,
           pilot: {
             select: {
@@ -203,6 +205,7 @@ export class BookingService {
         includes: true,
         commissionMax: true,
         commissionMin: true,
+        description: true,
         status: true,
         pilot: {
           select: {
@@ -475,6 +478,7 @@ export class BookingService {
             paymentMethod: updateBookingDto.paymentMethod,
             includes: updateBookingDto.includes,
             pName: updateBookingDto.pName,
+            description: updateBookingDto.description,
             pId: updateBookingDto.pId,
             identificationType: updateBookingDto.pIdType,
             ticketNo: updateBookingDto.ticketNo,
@@ -534,8 +538,10 @@ export class BookingService {
             paymentMethod: updateBookingDto.paymentMethod,
             includes: updateBookingDto.includes,
             pName: updateBookingDto.pName,
+            description: updateBookingDto.description,
             pId: updateBookingDto.pId,
             identificationType: updateBookingDto.pIdType,
+          
             ticketNo: updateBookingDto.ticketNo,
             aircraftType: updateBookingDto.aircraftType,
           },
